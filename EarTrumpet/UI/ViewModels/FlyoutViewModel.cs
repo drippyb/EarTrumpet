@@ -1,4 +1,4 @@
-﻿using EarTrumpet.UI.Helpers;
+using EarTrumpet.UI.Helpers;
 using EarTrumpet.Interop.Helpers;
 using System;
 using System.Collections.ObjectModel;
@@ -39,7 +39,7 @@ namespace EarTrumpet.UI.ViewModels
         public FlyoutViewModel(DeviceCollectionViewModel mainViewModel, Action returnFocusToTray, AppSettings settings)
         {
             _settings = settings;
-            IsExpanded = _settings.IsExpanded;
+            IsExpanded = true;
             Dialog = new ModalDialogViewModel();
             Devices = new ObservableCollection<DeviceViewModel>();
             _returnFocusToTray = returnFocusToTray;
@@ -182,10 +182,9 @@ namespace EarTrumpet.UI.ViewModels
 
         private void UpdateTextVisibility()
         {
-            // Show display name on only the "top" device, which handles Expanded and Collapsed.
             for (var i = 0; i < Devices.Count; i++)
             {
-                Devices[i].IsDisplayNameVisible = i > 0;
+                Devices[i].IsDisplayNameVisible = true;
             }
         }
 

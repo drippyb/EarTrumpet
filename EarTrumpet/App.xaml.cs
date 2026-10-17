@@ -197,6 +197,33 @@ namespace EarTrumpet
                 });
             }
 
+            var hiddenDevices = CollectionViewModel.HiddenDevices.OrderBy(x => x.DisplayName).ToList();
+            if (hiddenDevices.Any())
+            {
+                var hiddenMenuChildren = new List<ContextMenuItem>();
+                foreach (var hiddenDev in hiddenDevices)
+                {
+                    var devId = hiddenDev.Id;
+                    hiddenMenuChildren.Add(new ContextMenuItem
+                    {
+                        DisplayName = hiddenDev.DisplayName,
+                        Command = new RelayCommand(() => CollectionViewModel.UnhideDevice(devId)),
+                    });
+                }
+                hiddenMenuChildren.Add(new ContextMenuSeparator());
+                hiddenMenuChildren.Add(new ContextMenuItem
+                {
+                    DisplayName = EarTrumpet.Properties.Resources.UnhideAllDevicesText,
+                    Command = new RelayCommand(() => CollectionViewModel.UnhideAllDevices()),
+                });
+
+                ret.Add(new ContextMenuItem
+                {
+                    DisplayName = EarTrumpet.Properties.Resources.HiddenDevicesMenuText,
+                    Children = hiddenMenuChildren,
+                });
+            }
+
             ret.AddRange(new List<ContextMenuItem>
                 {
                     new ContextMenuSeparator(),
@@ -244,6 +271,7 @@ namespace EarTrumpet
                 null,
                 new SettingsPageViewModel[]
                     {
+                        new EarTrumpetDevicesSettingsPageViewModel(CollectionViewModel, Settings),
                         new EarTrumpetShortcutsPageViewModel(Settings),
                         new EarTrumpetMouseSettingsPageViewModel(Settings),
                         new EarTrumpetCommunitySettingsPageViewModel(Settings),

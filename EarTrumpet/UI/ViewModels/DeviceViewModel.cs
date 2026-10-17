@@ -1,4 +1,4 @@
-﻿using EarTrumpet.DataModel.Audio;
+using EarTrumpet.DataModel.Audio;
 using EarTrumpet.DataModel.WindowsAudio;
 using EarTrumpet.Extensions;
 using System;
@@ -71,12 +71,33 @@ namespace EarTrumpet.UI.ViewModels
         private bool _isDisplayNameVisible;
         private DeviceIconKind _iconKind;
 
+        public DeviceCollectionViewModel Parent
+        {
+            get
+            {
+                if (_parent.TryGetTarget(out DeviceCollectionViewModel parent))
+                {
+                    return parent;
+                }
+                return null;
+            }
+        }
+
+        public bool IsHidden => Parent?.IsDeviceHidden(Id) ?? false;
+
+        public System.Windows.Input.ICommand HideCommand { get; }
+
+        public void RaiseHiddenChanged() => RaisePropertyChanged(nameof(IsHidden));
+
         public DeviceViewModel(DeviceCollectionViewModel parent, IAudioDeviceManager deviceManager, IAudioDevice device) : base(device)
         {
             _deviceManager = deviceManager;
             _device = device;
             _parent = new WeakReference<DeviceCollectionViewModel>(parent);
+            _isDisplayNameVisible = true;
             Apps = new ObservableCollection<IAppItemViewModel>();
+
+            HideCommand = new EarTrumpet.UI.Helpers.RelayCommand(() => Parent?.HideDevice(Id));
 
             _device.PropertyChanged += OnPropertyChanged;
             _device.Groups.CollectionChanged += OnCollectionChanged;

@@ -1,4 +1,4 @@
-﻿using EarTrumpet.DataModel.Audio;
+using EarTrumpet.DataModel.Audio;
 using EarTrumpet.DataModel.WindowsAudio;
 using EarTrumpet.Extensions;
 using System;
@@ -20,7 +20,11 @@ namespace EarTrumpet.UI.ViewModels
         public event EventHandler<DeviceViewModel> DefaultChanged;
         public event Action TrayPropertyChanged;
 
+        private readonly ObservableCollection<DeviceViewModel> _rawDevices = new ObservableCollection<DeviceViewModel>();
+
         public ObservableCollection<DeviceViewModel> AllDevices { get; private set; } = new ObservableCollection<DeviceViewModel>();
+        public ObservableCollection<DeviceViewModel> AllDevicesWithHidden => _rawDevices;
+        public IEnumerable<DeviceViewModel> HiddenDevices => _rawDevices.Where(d => _settings.IsDeviceHidden(d.Id));
         public DeviceViewModel Default { get; private set; }
 
         private readonly IAudioDeviceManager _deviceManager;
@@ -33,6 +37,7 @@ namespace EarTrumpet.UI.ViewModels
         public DeviceCollectionViewModel(IAudioDeviceManager deviceManager, AppSettings settings)
         {
             _settings = settings;
+            _settings.HiddenDevicesChanged += OnHiddenDevicesChanged;
             _deviceManager = deviceManager;
             _deviceManager.DefaultChanged += OnDefaultChanged;
             _deviceManager.Devices.CollectionChanged += OnCollectionChanged;
@@ -43,6 +48,50 @@ namespace EarTrumpet.UI.ViewModels
             _peakMeterTimer.Elapsed += PeakMeterTimer_Elapsed;
         }
 
+        public bool IsDeviceHidden(string id) => _settings.IsDeviceHidden(id);
+
+        public void HideDevice(string id)
+        {
+            _settings.SetDeviceHidden(id, true);
+        }
+
+        public void UnhideDevice(string id)
+        {
+            _settings.SetDeviceHidden(id, false);
+        }
+
+        public void UnhideAllDevices()
+        {
+            var hidden = _settings.HiddenDevices;
+            foreach (var id in hidden)
+            {
+                _settings.SetDeviceHidden(id, false);
+            }
+        }
+
+        private void OnHiddenDevicesChanged(object sender, EventArgs e)
+        {
+            _currentDispatcher.BeginInvoke((Action)(() =>
+            {
+                foreach (var device in _rawDevices)
+                {
+                    bool shouldBeHidden = _settings.IsDeviceHidden(device.Id);
+                    bool isInAllDevices = AllDevices.Contains(device);
+
+                    if (shouldBeHidden && isInAllDevices)
+                    {
+                        AllDevices.Remove(device);
+                    }
+                    else if (!shouldBeHidden && !isInAllDevices)
+                    {
+                        AllDevices.AddSorted(device, DeviceViewModel.CompareByDisplayName);
+                    }
+
+                    device.RaiseHiddenChanged();
+                }
+            }));
+        }
+
         private void OnDefaultChanged(object sender, IAudioDevice newDevice)
         {
             if (newDevice == null)
@@ -51,11 +100,11 @@ namespace EarTrumpet.UI.ViewModels
             }
             else
             {
-                var device = AllDevices.FirstOrDefault(d => d.Id == newDevice.Id);
+                var device = _rawDevices.FirstOrDefault(d => d.Id == newDevice.Id);
                 if (device == null)
                 {
                     AddDevice(newDevice);
-                    device = AllDevices.FirstOrDefault(d => d.Id == newDevice.Id);
+                    device = _rawDevices.FirstOrDefault(d => d.Id == newDevice.Id);
                 }
                 SetDefault(device);
             }
@@ -87,14 +136,19 @@ namespace EarTrumpet.UI.ViewModels
                 e.PropertyName == nameof(Default.IsMuted) ||
                 e.PropertyName == nameof(Default.DisplayName))
             {
-                TrayPropertyChanged.Invoke();
+                TrayPropertyChanged?.Invoke();
             }
         }
 
         protected virtual void AddDevice(IAudioDevice device)
         {
             var newDevice = new DeviceViewModel(this, _deviceManager, device);
-            AllDevices.AddSorted(newDevice, DeviceViewModel.CompareByDisplayName);
+            _rawDevices.AddSorted(newDevice, DeviceViewModel.CompareByDisplayName);
+
+            if (!_settings.IsDeviceHidden(newDevice.Id))
+            {
+                AllDevices.AddSorted(newDevice, DeviceViewModel.CompareByDisplayName);
+            }
         }
 
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -103,8 +157,8 @@ namespace EarTrumpet.UI.ViewModels
             {
                 case NotifyCollectionChangedAction.Add:
                     var added = ((IAudioDevice)e.NewItems[0]);
-                    var allExistingAdded = AllDevices.FirstOrDefault(d => d.Id == added.Id);
-                    if (allExistingAdded == null)
+                    var rawExistingAdded = _rawDevices.FirstOrDefault(d => d.Id == added.Id);
+                    if (rawExistingAdded == null)
                     {
                         AddDevice(added);
                     }
@@ -112,14 +166,16 @@ namespace EarTrumpet.UI.ViewModels
 
                 case NotifyCollectionChangedAction.Remove:
                     var removed = ((IAudioDevice)e.OldItems[0]).Id;
-                    var allExisting = AllDevices.FirstOrDefault(d => d.Id == removed);
-                    if (allExisting != null)
+                    var rawExisting = _rawDevices.FirstOrDefault(d => d.Id == removed);
+                    if (rawExisting != null)
                     {
-                        AllDevices.Remove(allExisting);
+                        _rawDevices.Remove(rawExisting);
+                        AllDevices.Remove(rawExisting);
                     }
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
+                    _rawDevices.Clear();
                     AllDevices.Clear();
                     foreach (var device in _deviceManager.Devices)
                     {
@@ -151,7 +207,7 @@ namespace EarTrumpet.UI.ViewModels
             var apps = new List<IAppItemViewModel>();
             apps.Add(app);
 
-            foreach (var device in AllDevices)
+            foreach (var device in _rawDevices)
             {
                 foreach (var deviceApp in device.Apps)
                 {
@@ -185,8 +241,8 @@ namespace EarTrumpet.UI.ViewModels
 
             try
             {
-                DeviceViewModel oldDevice = AllDevices.First(d => d.Apps.Contains(app));
-                DeviceViewModel newDevice = AllDevices.First(d => searchId == d.Id);
+                DeviceViewModel oldDevice = _rawDevices.First(d => d.Apps.Contains(app));
+                DeviceViewModel newDevice = _rawDevices.First(d => searchId == d.Id);
 
                 bool isLogicallyMovingDevices = (oldDevice != newDevice);
 

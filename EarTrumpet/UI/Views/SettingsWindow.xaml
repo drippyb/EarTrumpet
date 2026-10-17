@@ -1,4 +1,4 @@
-﻿<Window x:Class="EarTrumpet.UI.Views.SettingsWindow"
+<Window x:Class="EarTrumpet.UI.Views.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Event="clr-namespace:EarTrumpet.Extensions.EventBinding"
@@ -27,6 +27,66 @@
         UseLayoutRounding="True"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:EarTrumpetDevicesSettingsPageViewModel}">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Style="{StaticResource BodySubText}"
+                           Margin="12,0,12,12"
+                           Text="{x:Static resx:Resources.DevicesSettingsSummaryText}" />
+
+                <Button Content="{x:Static resx:Resources.UnhideAllDevicesText}"
+                        Command="{Binding UnhideAllCommand}"
+                        Margin="12,0,12,12">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasHiddenDevices}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <ItemsControl ItemsSource="{Binding Devices}" FocusVisualStyle="{x:Null}" IsTabStop="False">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="12,4"
+                                    Padding="12,8"
+                                    Theme:Brush.Background="Theme={Theme}BaseLow"
+                                    CornerRadius="2">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DisplayName}"
+                                                   Style="{StaticResource BodyText}"
+                                                   Margin="0"
+                                                   FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               Margin="12,0"
+                                               Style="{StaticResource BodySubText}"
+                                               Text="{Binding StatusText}" />
+
+                                    <Button Grid.Column="2"
+                                            VerticalAlignment="Center"
+                                            Margin="0"
+                                            Content="{Binding ActionButtonText}"
+                                            Command="{Binding ToggleHiddenCommand}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:EarTrumpetShortcutsPageViewModel}">
             <StackPanel Orientation="Vertical">
                 <TextBlock Style="{StaticResource BodyText}" Text="{x:Static resx:Resources.SettingsOpenEarTrumpetText}" />

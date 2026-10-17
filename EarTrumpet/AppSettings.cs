@@ -1,4 +1,4 @@
-﻿using EarTrumpet.DataModel.Storage;
+using EarTrumpet.DataModel.Storage;
 using EarTrumpet.Interop.Helpers;
 using System;
 using System.Diagnostics;
@@ -10,6 +10,7 @@ namespace EarTrumpet
     public class AppSettings
     {
         public event EventHandler<bool> UseLegacyIconChanged;
+        public event EventHandler HiddenDevicesChanged;
         public event Action FlyoutHotkeyTyped;
         public event Action MixerHotkeyTyped;
         public event Action SettingsHotkeyTyped;
@@ -131,6 +132,38 @@ namespace EarTrumpet
         {
             get => _settings.Get("IsExpanded", false);
             set => _settings.Set("IsExpanded", value);
+        }
+
+        public string[] HiddenDevices
+        {
+            get => _settings.Get("HiddenDevices", new string[0]);
+            set
+            {
+                _settings.Set("HiddenDevices", value);
+                HiddenDevicesChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public bool IsDeviceHidden(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return false;
+            var hidden = HiddenDevices;
+            return hidden != null && hidden.Contains(id);
+        }
+
+        public void SetDeviceHidden(string id, bool isHidden)
+        {
+            if (string.IsNullOrEmpty(id)) return;
+            var list = new System.Collections.Generic.HashSet<string>(HiddenDevices ?? new string[0]);
+            if (isHidden)
+            {
+                list.Add(id);
+            }
+            else
+            {
+                list.Remove(id);
+            }
+            HiddenDevices = list.ToArray();
         }
 
         public bool UseScrollWheelInTray

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -664,5 +664,32 @@ Open [https://eartrumpet.app/jmp/fixfonts] now?</value>
   </data>
   <data name="SettingsUseLogarithmicVolume" xml:space="preserve">
     <value>Use logarithmic volume scale</value>
+  </data>
+  <data name="HideDeviceToolTip" xml:space="preserve">
+    <value>Hide device</value>
+  </data>
+  <data name="DevicesSettingsPageText" xml:space="preserve">
+    <value>Devices</value>
+  </data>
+  <data name="DevicesSettingsDescriptionText" xml:space="preserve">
+    <value>Manage playback devices and visibility in EarTrumpet</value>
+  </data>
+  <data name="DevicesSettingsSummaryText" xml:space="preserve">
+    <value>Hidden devices will not appear in the volume mixer. Hiding a device does not disable it in Windows.</value>
+  </data>
+  <data name="HiddenDevicesMenuText" xml:space="preserve">
+    <value>Hidden devices</value>
+  </data>
+  <data name="UnhideAllDevicesText" xml:space="preserve">
+    <value>Unhide all devices</value>
+  </data>
+  <data name="UnhideDeviceText" xml:space="preserve">
+    <value>Unhide</value>
+  </data>
+  <data name="HideDeviceText" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="HiddenDeviceBadgeText" xml:space="preserve">
+    <value>Hidden</value>
   </data>
 </root>

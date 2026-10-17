@@ -1,5 +1,6 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props" Condition="Exists('..\packages\GitVersionTask.5.5.1\build\GitVersionTask.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -23,6 +24,7 @@
     <TargetFrameworkProfile />
     <ApplicationIcon>Assets\Icon-Light.ico</ApplicationIcon>
     <ApplicationManifest>App.manifest</ApplicationManifest>
+    <LangVersion>latest</LangVersion>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -68,6 +70,17 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath Condition="Exists('$(MSBuildProgramFiles32)\Windows Kits\10\UnionMetadata\Windows.winmd')">$(MSBuildProgramFiles32)\Windows Kits\10\UnionMetadata\Windows.winmd</HintPath>
       <HintPath Condition="Exists('$(MSBuildProgramFiles32)\Windows Kits\10\UnionMetadata\10.0.16299.0\Windows.winmd')">$(MSBuildProgramFiles32)\Windows Kits\10\UnionMetadata\10.0.16299.0\Windows.winmd</HintPath>
+      <HintPath Condition="Exists('..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\ref\netstandard2.0\Windows.WinMD')">..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\ref\netstandard2.0\Windows.WinMD</HintPath>
+    </Reference>
+    <Reference Include="Windows.Foundation.UniversalApiContract" Condition="Exists('..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\ref\netstandard2.0\Windows.Foundation.UniversalApiContract.winmd')">
+      <HintPath>..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\ref\netstandard2.0\Windows.Foundation.UniversalApiContract.winmd</HintPath>
+    </Reference>
+    <Reference Include="Windows.Foundation.FoundationContract" Condition="Exists('..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\ref\netstandard2.0\Windows.Foundation.FoundationContract.winmd')">
+      <HintPath>..\packages\Microsoft.Windows.SDK.Contracts.10.0.19041.1\ref\netstandard2.0\Windows.Foundation.FoundationContract.winmd</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Runtime.WindowsRuntime" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.4.6.0\lib\net461\System.Runtime.WindowsRuntime.dll')">
+      <HintPath>..\packages\System.Runtime.WindowsRuntime.4.6.0\lib\net461\System.Runtime.WindowsRuntime.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -233,6 +246,7 @@
     <Compile Include="UI\Helpers\TaskbarIconSource.cs" />
     <Compile Include="UI\ViewModels\BackstackViewModel.cs" />
     <Compile Include="UI\ViewModels\EarTrumpetCommunitySettingsPageViewModel.cs" />
+    <Compile Include="UI\ViewModels\EarTrumpetDevicesSettingsPageViewModel.cs" />
     <Compile Include="UI\ViewModels\EarTrumpetMouseSettingsPageViewModel.cs" />
     <Compile Include="UI\ViewModels\EarTrumpetShortcutsPageViewModel.cs" />
     <Compile Include="Extensibility\IEarTrumpetAddonAppContent.cs" />
@@ -520,6 +534,11 @@
     </PropertyGroup>
     <Message Text="GitVersion_InformationalVersion: $(GitVersion_InformationalVersion)" />
     <Exec Command="powershell -executionpolicy Bypass -noprofile &quot;&amp; '$(ProjectDir)prebuild.ps1'&quot; $(ChannelVersion)" />
+  </Target>
+  <Target Name="GenerateSatelliteAssemblies" Condition="'$(SdkToolsPath)' == '' and '$(MSBuildToolsVersion)' == '4.0'">
+    <ItemGroup>
+      <IntermediateSatelliteAssembliesWithTargetPath Remove="@(IntermediateSatelliteAssembliesWithTargetPath)" />
+    </ItemGroup>
   </Target>
   <Import Project="..\packages\GitVersionTask.5.5.1\build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.5.5.1\build\GitVersionTask.targets')" />
 </Project>
