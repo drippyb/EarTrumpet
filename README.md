@@ -5,6 +5,20 @@
 ![EarTrumpet Screenshot](./Graphics/hero.gif)
 
 
+## About This Fork
+
+> **Note**: This repository is a fork of the original project, found at [File-New-Project/EarTrumpet](https://github.com/File-New-Project/EarTrumpet/). It was created to experiment with AI tools in order to add a feature I wanted in an application I use every day: **Audio Playback Device Hiding**.
+
+### 🎧 New Feature: Hide Devices
+
+This fork adds full support for hiding audio playback endpoints so you can keep your flyout volume mixer tidy and focused only on the devices you actively use:
+
+* **Quick-Hide from Flyout**: Hover over any device title in the volume flyout to reveal the hide button, instantly collapsing and removing the device from view.
+* **Dedicated "Devices" Settings Page**: Manage all detected audio endpoints in **Settings > Devices**, view device status (`Hidden` vs. active), toggle individual device visibility, or unhide all devices in one click.
+* **Non-Destructive & Persistent**: Hiding a device inside EarTrumpet only affects EarTrumpet's mixer UI; it does not disable or modify the device in Windows Sound settings. Preferences persist across restarts and device reconnections.
+* **Pre-built Downloads**: Ready-to-run binaries and portable zip archives are available on the [Releases](https://github.com/drippyb/EarTrumpet/releases) page.
+
+
 ## Awards
 
 2022 Winner of the [Microsoft Store Community Choice Awards](https://blogs.windows.com/windowsdeveloper/2022/05/27/announcing-the-microsoft-store-app-awards-winners/#:~:text=open%20platform%20category) (Open Platform)
@@ -35,6 +49,7 @@
 
 ## Features
 
+* Hide audio playback devices from the flyout and manage visibility in Settings *(new in this fork)*
 * Visualize audio with multi-channel aware peaking
 * Standalone volume mixer
 * Move apps between playback devices
